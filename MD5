@@ -1,11 +1,9 @@
-78688176faa066b10f72031a56ec08f4 *DESCRIPTION
-0e0e44099cdeaeec345ed284c2b4a7db *NAMESPACE
+86d0fc6cd98c68a40ad773c55177c29c *DESCRIPTION
+537ba5989b2471341bd9f7f2a11fbc9f *NAMESPACE
 2e158e1fde58888c0a64f83b23eb6b3c *R/collapse.R
-864cffb98b0fb4e09821d50ba77dac04 *R/cv.dmr.R
-ff23c248bd97a44100a79c019c8d29b8 *R/dmr.R
+ac81cb5215a4b1ff13de94f55f3befbe *R/dmr.R
 83f321ba3c2fdcf37ddc2a6c8d35386a *README.md
 8eb6e8a0b7eb690f494db95c44474aa2 *inst/CITATION
 15772c02e4c2abba6a035eeff4a8f0e5 *man/collapse.Rd
-fe662eeab7c26f480f9c46596430f14d *man/cv.dmr.rd
-d8e7ca291d10d5754093c911ebc7972b *man/dmr.Rd
-373198db62512cfa91c2fc1489fb89cd *man/dmrcoef-class.Rd
+62a670ba1ec3a6eb925864767fbd05b6 *man/dmr.Rd
+04e92f3b178da9f39860aa7a0e9e9b43 *man/dmrcoef-class.Rd
