@@ -1,11 +1,11 @@
-588e7976c5c04c04f8c3ade689993ecd *DESCRIPTION
+78688176faa066b10f72031a56ec08f4 *DESCRIPTION
 0e0e44099cdeaeec345ed284c2b4a7db *NAMESPACE
 2e158e1fde58888c0a64f83b23eb6b3c *R/collapse.R
 864cffb98b0fb4e09821d50ba77dac04 *R/cv.dmr.R
-0742e548911d6e0ec710eedae5409293 *R/dmr.R
-8cb4de2f55664852f4f1a30a31a25cd9 *data/we8there.rda
+ff23c248bd97a44100a79c019c8d29b8 *R/dmr.R
+83f321ba3c2fdcf37ddc2a6c8d35386a *README.md
+8eb6e8a0b7eb690f494db95c44474aa2 *inst/CITATION
 15772c02e4c2abba6a035eeff4a8f0e5 *man/collapse.Rd
 fe662eeab7c26f480f9c46596430f14d *man/cv.dmr.rd
-cb81fe4f51f6045a57b321a7bea25118 *man/dmr.Rd
+d8e7ca291d10d5754093c911ebc7972b *man/dmr.Rd
 373198db62512cfa91c2fc1489fb89cd *man/dmrcoef-class.Rd
-b4550941145bf18aba07cf82d74cae29 *man/we8there.Rd
