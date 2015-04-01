@@ -6,9 +6,20 @@ setClass("dmrcoef", contains="dgCMatrix")
 ## inner loop function
 onerun <- function(xj, argl){
   argl$y <- xj
+  if(argl$nzcheck | argl$mlcheck){ 
+    xnz <- as.matrix(argl$x[drop(argl$y>0),])
+    if(argl$nzcheck) fullrank <- which(colSums(xnz!=0)!=0)
+    else{
+      Q <- qr(cbind(1,xnz))
+      fullrank <- Q$pivot[2:Q$rank]-1
+    }
+    if(is.null(argl$varweight)) argl$varweight <- rep(1,ncol(argl$x))
+    argl$varweight[-fullrank] <- Inf
+    argl$free <- argl$free[ (argl$free %in% fullrank) ]
+  }
   if(argl$cv) fit <- do.call(cv.gamlr,argl)
   else fit <- do.call(gamlr,argl)
-   return(fit)
+  return(fit)
 }
 
 ## main function
@@ -24,14 +35,17 @@ dmr <- function(cl, covars, counts, mu=NULL, bins=NULL, verb=0, cv=FALSE, ...)
     argl$nlambda <- formals(gamlr)$nlambda
   argl$verb <- max(verb-1,0)
   argl$cv <- cv
-
+  if(is.null(argl$mlcheck))
+    argl$mlcheck <- FALSE
+  if(is.null(argl$nzcheck))
+    argl$nzcheck <- FALSE
   ## collapse and clean
   chk <- collapse(covars, counts, mu, bins)
   if(verb)
     cat(sprintf("fitting %d observations on %d categories, %d covariates.\n",
         nrow(chk$v), ncol(chk$counts), ncol(chk$v)))
   argl$x <- chk$v
-  argl$fix <- chk$mu
+  argl$shift <- chk$mu
   nobs <- sum(chk$nbin)
   p <- ncol(chk$counts)
   vars <- colnames(chk$counts)
@@ -73,7 +87,7 @@ dmr <- function(cl, covars, counts, mu=NULL, bins=NULL, verb=0, cv=FALSE, ...)
   class(mods) <- "dmr"
   attr(mods,"nobs") <- nobs
   attr(mods,"nlambda") <- argl$nlambda
-  attr(mods,"mu") <- argl$fix
+  attr(mods,"mu") <- argl$shift
   return(mods)
 }
 
