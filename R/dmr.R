@@ -7,11 +7,12 @@ setClass("dmrcoef", contains="dgCMatrix")
 onerun <- function(xj, argl){
   argl$y <- xj
   if(argl$nzcheck | argl$mlcheck){ 
-    xnz <- as.matrix(argl$x[drop(argl$y>0),])
+    xnz <- as.matrix(argl$x[drop(argl$y>0),,drop=FALSE])
+    if(nrow(xnz)==0) return(NULL)
     if(argl$nzcheck) fullrank <- which(colSums(xnz!=0)!=0)
     else{
       Q <- qr(cbind(1,xnz))
-      fullrank <- Q$pivot[2:Q$rank]-1
+      fullrank <- Q$pivot[ 2:Q$rank ] - 1
     }
     if(is.null(argl$varweight)) argl$varweight <- rep(1,ncol(argl$x))
     argl$varweight[-fullrank] <- Inf
@@ -19,6 +20,7 @@ onerun <- function(xj, argl){
   }
   if(argl$cv) fit <- do.call(cv.gamlr,argl)
   else fit <- do.call(gamlr,argl)
+  fit$nobs <- argl$nobs
   return(fit)
 }
 
@@ -46,7 +48,7 @@ dmr <- function(cl, covars, counts, mu=NULL, bins=NULL, verb=0, cv=FALSE, ...)
         nrow(chk$v), ncol(chk$counts), ncol(chk$v)))
   argl$x <- chk$v
   argl$shift <- chk$mu
-  nobs <- sum(chk$nbin)
+  argl$nobs <- sum(chk$nbin)
   p <- ncol(chk$counts)
   vars <- colnames(chk$counts)
   ## cleanup
@@ -85,7 +87,7 @@ dmr <- function(cl, covars, counts, mu=NULL, bins=NULL, verb=0, cv=FALSE, ...)
     
   ## classy exit
   class(mods) <- "dmr"
-  attr(mods,"nobs") <- nobs
+  attr(mods,"nobs") <- argl$nobs
   attr(mods,"nlambda") <- argl$nlambda
   attr(mods,"mu") <- argl$shift
   return(mods)
@@ -93,6 +95,7 @@ dmr <- function(cl, covars, counts, mu=NULL, bins=NULL, verb=0, cv=FALSE, ...)
 
 coef.dmr <- function(object, ...){
   B <- lapply(object,coef, ...)
+  B[sapply(B,is.null)] <- Matrix(0)
   bx <- unlist(lapply(B,function(b) b@x))
   bi <- unlist(lapply(B,function(b) b@i))
   bp <- c(0,
