@@ -5,22 +5,10 @@ setClass("dmrcoef", contains="dgCMatrix")
 
 ## inner loop function
 onerun <- function(xj, argl){
+  if(length(xj@i)==0) return(NULL) # n'er occurs
   argl$y <- xj
-  if(argl$nzcheck | argl$mlcheck){ 
-    xnz <- as.matrix(argl$x[drop(argl$y>0),,drop=FALSE])
-    if(nrow(xnz)==0) return(NULL)
-    if(argl$nzcheck) fullrank <- which(colSums(xnz!=0)!=0)
-    else{
-      Q <- qr(cbind(1,xnz))
-      fullrank <- Q$pivot[ 2:Q$rank ] - 1
-    }
-    if(is.null(argl$varweight)) argl$varweight <- rep(1,ncol(argl$x))
-    argl$varweight[-fullrank] <- Inf
-    argl$free <- argl$free[ (argl$free %in% fullrank) ]
-  }
   if(argl$cv) fit <- do.call(cv.gamlr,argl)
   else fit <- do.call(gamlr,argl)
-  fit$nobs <- argl$nobs
   return(fit)
 }
 
@@ -37,10 +25,6 @@ dmr <- function(cl, covars, counts, mu=NULL, bins=NULL, verb=0, cv=FALSE, ...)
     argl$nlambda <- formals(gamlr)$nlambda
   argl$verb <- max(verb-1,0)
   argl$cv <- cv
-  if(is.null(argl$mlcheck))
-    argl$mlcheck <- FALSE
-  if(is.null(argl$nzcheck))
-    argl$nzcheck <- FALSE
   ## collapse and clean
   chk <- collapse(covars, counts, mu, bins)
   if(verb)
@@ -48,7 +32,6 @@ dmr <- function(cl, covars, counts, mu=NULL, bins=NULL, verb=0, cv=FALSE, ...)
         nrow(chk$v), ncol(chk$counts), ncol(chk$v)))
   argl$x <- chk$v
   argl$shift <- chk$mu
-  argl$nobs <- sum(chk$nbin)
   p <- ncol(chk$counts)
   vars <- colnames(chk$counts)
   ## cleanup
@@ -95,7 +78,8 @@ dmr <- function(cl, covars, counts, mu=NULL, bins=NULL, verb=0, cv=FALSE, ...)
 
 coef.dmr <- function(object, ...){
   B <- lapply(object,coef, ...)
-  B[sapply(B,is.null)] <- Matrix(0)
+  failures <- sapply(B,is.null)
+  if(any(failures)) B[[which(failures)]] <- Matrix(0)
   bx <- unlist(lapply(B,function(b) b@x))
   bi <- unlist(lapply(B,function(b) b@i))
   bp <- c(0,
